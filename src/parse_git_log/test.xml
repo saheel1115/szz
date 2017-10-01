@@ -1,0 +1,42 @@
+<root>
+  <commit>
+    <sha>70b0bb254dd78b9dfb16bd1ea5b97668f201bdec</sha>
+    <project>atmosphere</project>
+    <committer>jfarcand</committer>
+    <commit_date>2012-11-19 15:00:25</commit_date>
+    <author>jfarcand</author>
+    <author_date>2012-11-19 15:00:25</author_date>
+    <bug>Yes</bug>
+    <subject>Port fix for #735</subject>
+    <body></body>
+    <change>
+      <add>11</add>
+      <delete>11</delete>
+      <file>modules/cpr/src/main/java/org/atmosphere/cpr/DefaultBroadcaster.java</file>
+      <language>java</language>
+    </change>
+  </commit>
+  <commit>
+    <sha>b117d34d0ac11e322f44df89a585fbe6df5caafc</sha>
+    <project>atmosphere</project>
+    <committer>jfarcand</committer>
+    <commit_date>2011-10-31 12:29:10</commit_date>
+    <author>jfarcand</author>
+    <author_date>2011-10-31 12:29:10</author_date>
+    <bug>No</bug>
+    <subject>Fix double initialization of DefaultBroadcasterFactory. Collaboration works with Adam Zell</subject>
+    <body></body>
+    <change>
+      <add>3</add>
+      <delete>24</delete>
+      <file>modules/cpr/src/main/java/org/atmosphere/cpr/AtmosphereServlet.java</file>
+      <language>java</language>
+    </change>
+    <change>
+      <add>2</add>
+      <delete>3</delete>
+      <file>modules/cpr/src/main/java/org/atmosphere/cpr/DefaultBroadcasterFactory.java</file>
+      <language>java</language>
+    </change>
+  </commit>
+</root>

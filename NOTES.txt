@@ -1,0 +1,61 @@
+----------------------------------------------- Some notes on code -----------------------------------------------
+1. To include files with extension other than .c and .cpp, change the code in dumpTrainFiles() in SnapShot.py
+
+----------------------------------------------- Some useful SQL/R commands -----------------------------------------------
+-- To find 10th percentile in PostgreSQL:
+
+select deletion, ntile(10) over (order by deletion) as quartile
+  from err_corr_c.all_changes
+  where project='libgit2' and deletion > 0
+  
+-- R commands to create the project_wise_changes table:
+
+>> library('RPostgreSQL')
+>> drv = dbDriver('PostgreSQl')
+>> drv = dbDriver('PostgreSQL')
+>> con = dbConnect(drv, host='127.0.0.1', user='saheel', password='_gNU9+1cHUte', dbname='baishakhi')
+>> rs = dbSendQuery(con, "select * from err_corr_c.all_changes where project like 'libgit2'")
+>> library(dplyr)
+>> libgit2_changes = fetch(rs, n=-1)
+>> libgit2_changes_arranged = arrange(libgit2_changes, deletion)
+>> libgit2_changes_arranged_nonzero = libgit2_changes_arranged[which(libgit2_changes_arranged$deletion != 0), ]
+>> length(libgit2_changes_arranged_nonzero$language)
+>> len = 0.8*length(libgit2_changes_arranged_nonzero$language)
+>> libgit2_changes = libgit2_changes_arranged_nonzero[1:len, ]
+>> length(libgit2_changes$language)
+>> dbWriteTable(con, c('err_corr_c', 'changes_libgit2_80_percent_deletion'), libgit2_changes)
+>> dbDisconnect(con)
+
+----------------------------------------------- Some useful git/bash commands -----------------------------------------------
+$ git log --format="%h% ai" --diff-filter=A src/util.c
+- Returns author and author date for the commit that added the given file.
+
+$ git blame -w -l -M -C -C -s -n -f --score-debug file_name
+- This is the command used by Foyzur; -n and -f show line number and file name in original commit; read the man page for info on other options.
+
+$ git log -S"your_string" 
+- This command returns the commits that introduced or deleted any of the lines containing "your_string"; can be handy along with other git-log flags.
+
+$ git blame --reverse file_name START..END
+- Returns for each line in file_name in START the latest commit before (and including) END that contains/contained that line (along with its line number in that commit, of course). Use `-L` option (and other options) to get the same info for only certain lines.
+
+$ git log --format=%H --reverse --ancestry-path --diff-filter=AM a3cd206..HEAD -- file_name
+- Returns the SHAs of the commits (in chronological order along the ancestry-path in the tree) that have added/modified b since (but not including) a3cd206; you can remove `-- file_name` and the diff-filter options to return parent-children ordering in the tree (helpful in answering the question: who is a3cd206's child?).
+
+$ git diff -U0 -w SHA SHA^ -- filename | ./showlinenum.awk show_header=0 show_path=0
+- Returns the lines changed in SHA for the file `filename` but with their mode of change reversed. That is, lines deleted in SHA will appear with a + sign in front of them. If SHA is a bug-fix commit, then these lines are the buggy lines that have been deleted; note that the line numbers that show up correspond to those in SHA^, not in SHA. Thus, you can now go to `filename` in SHA^ and get the type info, etc. for these buggy lines. Remove "-- filename" and "show_path=0" to get the info on all the (buggy) lines that existed in SHA^ and were deleted in SHA. (Uses https://github.com/jay/showlinenum to prepend line number to git diff output).
+
+$ diff -N -w -E -B --unchanged-line-format="" --old-line-format="%dn " --new-line-format="" filename1 filename2
+- Formats the diff output to give only the line numbers of changed lines in old file. See man page for other flags. Use shlex to pass this as an argument to subprocess.Popen(), quotes and all.
+
+$ python -o cProfile_logs/beanstalkd.szz script.py args
+$ gprof2dot -f pstats cProfile_logs/beanstalkd.szz | dot -Tpng -o cProfile_logs/beanstalkd.szz.png
+- This pair of commands will profile your code in `script.py`  (per method), write the output as a cProfile stats file, and also convert it into a PNG image.
+
+------------------------------------- Algo for plotting Lorenz Curves for AST nodetype instances -------------------------------------
+1. Identify all instances of this AST node-type in each snapshot in each of our projects (an instance is a block or a single statement, according as the AST node-type is block-level or statement-level).
+2. Calculate the defect density of all such instances in our entire corpus to get a range of defect density for this AST node-type. Divide this range into 100 equal buckets.
+3. For each snapshot in each project, fill the buckets appropriately. Aggregate the counts over all the snapshots. Do this for each project.
+4. Plot a Lift Chart and calculate the Gini Coefficient for the bucket counts. We can have one plot per project or one plot for all projects (we will average the per-project counts in the latter case), or both.
+
+-----------------------------------------------------------------------------------------------------------------------
